@@ -15,14 +15,16 @@ This plugin reads its configuration from dedicated `.json` or `.jsonc` files. Se
 
 ## Config File Locations
 
-Files are loaded in the following priority (highest first):
+Each config option uses the following priority (highest first):
 
 | Priority | Level | Path |
 | --- | --- | --- |
 | 1 | Project | `.opencode/opencode-easy-vision.json` or `.jsonc` |
 | 2 | User | `~/.config/opencode/opencode-easy-vision.json` or `.jsonc` |
 
-At each level, JSONC takes precedence over JSON.
+The plugin merges options across levels. For example, a project `models` setting overrides the user setting while the user-level `imageAnalysisTool` remains in effect when the project config does not set it.
+
+At each level, a valid JSONC file takes precedence over JSON. The plugin also reads the legacy `opencode-minimax-easy-vision` filenames when no current filename exists at that level. Current filenames take precedence over legacy filenames.
 
 If no config exists, the plugin uses hardcoded defaults. On first load, an example `.jsonc` file is created at `~/.config/opencode/opencode-easy-vision.jsonc`.
 
@@ -68,7 +70,7 @@ Patterns without a `/` are matched against both the provider ID and the model ID
 **Type:** `string`  
 **Default:** `"mcp_minimax_understand_image"`
 
-The MCP tool the plugin instructs the model to use. Use the exact tool name OpenCode exposes, typically `<server-key>_<tool>`.
+The MCP tool the plugin instructs the model to use. Use the exact tool name OpenCode exposes.
 
 **Example:**
 
@@ -83,7 +85,7 @@ The MCP tool the plugin instructs the model to use. Use the exact tool name Open
 **Type:** `string`  
 **Default:** built-in template (see below)
 
-Override the default prompt with a custom template. The template must include **at least one** of the following variables — if none are present, the plugin falls back to the default.
+Override the default prompt with a custom template. The template must include **at least one** of the following variables. If none are present, the plugin falls back to the default. Include both `{imageList}` and `{toolName}` when the model needs the image paths and the MCP tool name.
 
 | Variable       | Description                                        |
 | -------------- | -------------------------------------------------- |
@@ -131,7 +133,7 @@ Custom directory where pasted images are saved before being passed to the MCP to
 **Type:** `number`  
 **Default:** `24`
 
-Temp files older than this many hours are deleted when the plugin initializes.
+Temp files older than this many hours are deleted when the plugin initializes. The plugin does not delete files on a timer while OpenCode is running.
 
 **Example:**
 

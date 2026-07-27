@@ -1,6 +1,6 @@
 # OpenCode Easy Vision
 
-An [OpenCode](https://opencode.ai) plugin that adds **vision support** to models that lack it — paste images directly into the chat and ask questions, just like you would with Claude or GPT.
+An [OpenCode](https://opencode.ai) plugin that adds **vision support** to models that lack it. Paste images directly into the chat and ask questions, just like you would with Claude or GPT.
 
 > [!IMPORTANT]
 >
@@ -11,8 +11,8 @@ An [OpenCode](https://opencode.ai) plugin that adds **vision support** to models
 - [The Problem](#the-problem)
 - [Demo](#demo)
 - [Setup](#setup)
-  - [For Humans](#for-humans)
-  - [For LLM Agents](#for-llm-agents)
+  - [Manual Setup](#manual-setup)
+  - [Agent-Assisted Setup](#agent-assisted-setup)
 - [Usage](#usage)
 - [Configuration](#configuration)
 - [Supported Image Formats](#supported-image-formats)
@@ -24,9 +24,9 @@ An [OpenCode](https://opencode.ai) plugin that adds **vision support** to models
 
 ## The Problem
 
-Many models — open-weight ones especially — have no vision capability. They are text-only and simply cannot process image input. For some (like MiniMax), a workaround exists: an MCP tool that reads the image externally using a vision service and returns the analysis as text. But that tool requires a local file path, not a clipboard paste — meaning you'd have to save every screenshot manually, find the path, and type it in.
+Many models, especially open-weight ones, have no vision capability. They are text-only and cannot process image input. For some models, such as MiniMax, an MCP tool can read an image through a vision service and return the analysis as text. The tool needs a local file path rather than a clipboard paste, so you would otherwise need to save each screenshot and provide its path yourself.
 
-This plugin automates the entire workaround. It intercepts pasted images, saves them to disk, and injects the right instructions for the model to call the MCP tool with the correct path. You paste, you ask — the plugin handles the rest.
+This plugin automates the entire workaround. It intercepts pasted images, saves them to disk, and injects the instructions the model needs to call the MCP tool with the correct path. You paste an image and ask a question. The plugin handles the rest.
 
 ## Demo
 
@@ -42,13 +42,13 @@ https://github.com/user-attachments/assets/fdb68339-b95b-46eb-90d4-ac2dbc0f436e
 
 ## Setup
 
-### For Humans
+### Manual Setup
 
 #### 1. Configure an MCP image analysis tool
 
-The plugin works with any MCP server that can read an image and return its analysis as text. Add one to your `opencode.json`.
+The plugin works with any MCP server that can analyze an image from a local path or URL and return its analysis as text. Add one to your `opencode.json`.
 
-**Default — MiniMax Coding Plan MCP:**
+**Default: MiniMax Coding Plan MCP**
 
 ```json
 {
@@ -65,7 +65,7 @@ The plugin works with any MCP server that can read an image and return its analy
 }
 ```
 
-**Alternative — [openrouter-image-mcp](https://github.com/JonathanJude/openrouter-image-mcp):**
+**Alternative: [openrouter-image-mcp](https://github.com/JonathanJude/openrouter-image-mcp)**
 
 Routes image analysis through OpenRouter, giving you access to any vision-capable model including free ones.
 
@@ -90,7 +90,7 @@ Routes image analysis through OpenRouter, giving you access to any vision-capabl
 
 > [!NOTE]
 >
-> Any MCP server with an image analysis tool will work — the above are just examples. For a different tool, point the plugin to it using `imageAnalysisTool` — see [Configuration](#configuration).
+> Any MCP server with an image analysis tool will work. The servers above are examples. For a different tool, set `imageAnalysisTool`; see [Configuration](#configuration).
 
 #### 2. Install the plugin
 
@@ -119,7 +119,7 @@ opencode plugin opencode-easy-vision
 
 ---
 
-### For LLM Agents
+### Agent-Assisted Setup
 
 **Paste this into OpenCode and let your agent handle the rest:**
 
@@ -132,11 +132,11 @@ Set up opencode-easy-vision by following https://raw.githubusercontent.com/devad
 
 The agent follows the instructions in [AGENT_SETUP.md](./AGENT_SETUP.md). It will:
 
-1. Pre-fetch your existing config and the full configuration reference before asking anything
-2. Ask which MCP image analysis tool you want (MiniMax, OpenRouter, or something else) and collect the relevant API key
-3. Ask which models the plugin should activate for
-4. Apply all changes — updating existing files in place rather than replacing them
-5. Walk you through verifying the setup after a restart
+1. Inspect your existing OpenCode and plugin configuration
+2. Ask whether to set up the plugin for all projects or only the current project
+3. Ask which MCP image analysis tool and models you want to use
+4. Update existing files in place instead of replacing them
+5. Summarize the changes and guide you through verification after a restart
 
 </details>
 
@@ -144,24 +144,24 @@ The agent follows the instructions in [AGENT_SETUP.md](./AGENT_SETUP.md). It wil
 
 1. Select a configured model in OpenCode.
 2. Paste an image (`Cmd+V` / `Ctrl+V`).
-3. Ask your question — just like you would with Claude or GPT.
+3. Ask your question, just like you would with Claude or GPT.
 
 ## Configuration
 
 > [!IMPORTANT]
 >
-> By default, this plugin only activates for **MiniMax provider models** — i.e. models where MiniMax is the direct provider in OpenCode (IDs matching `minimax/*`, `minimax-cn/*`, etc.). If you're accessing a MiniMax model through a third-party provider like OpenRouter, or using a completely different model, the plugin won't activate until you add that model's pattern to the `models` config — see [CONFIGURATION.md](./CONFIGURATION.md).
+> By default, this plugin only activates for **MiniMax provider models**, where MiniMax is the direct provider in OpenCode. These IDs match `minimax/*`, `minimax-cn/*`, and related patterns. If you access a MiniMax model through a third-party provider such as OpenRouter, or use another model, add that model's pattern to `models`. See [CONFIGURATION.md](./CONFIGURATION.md).
 
-Config files are loaded in priority order:
+Each option uses the following priority order:
 
 1. **Project level**: `.opencode/opencode-easy-vision.json` (or `.jsonc`)
 2. **User level**: `~/.config/opencode/opencode-easy-vision.json` (or `.jsonc`)
 
-On first load, an example config is created at `~/.config/opencode/opencode-easy-vision.jsonc`. See [CONFIGURATION.md](./CONFIGURATION.md) for the full reference.
+On first load, an example config is created at `~/.config/opencode/opencode-easy-vision.jsonc`. See [CONFIGURATION.md](./CONFIGURATION.md) for config precedence, legacy config support, and the full option reference.
 
 ## Supported Image Formats
 
-PNG, JPEG, WebP — exact formats depend on the image analysis tool you've configured.
+PNG, JPEG, and WebP. Exact format support depends on the image analysis tool you configure.
 
 ## Troubleshooting
 
@@ -175,17 +175,20 @@ rm -rf ~/.cache/opencode/packages/opencode-easy-vision@latest
 
 **Plugin not activating?**
 
-By default the plugin only fires for MiniMax provider models (IDs matching `minimax/*`, `minimax-cn/*`, etc.). It will not activate for a MiniMax model accessed through OpenRouter or any other provider. To use the plugin with a different model or provider, add the model's ID pattern to `models` in your config — see [CONFIGURATION.md](./CONFIGURATION.md).
+By default, the plugin only activates for MiniMax provider models, with IDs matching `minimax/*`, `minimax-cn/*`, and related patterns. It does not activate for a MiniMax model accessed through OpenRouter or another provider. To use the plugin with a different model or provider, add the model's ID pattern to `models` in your config. See [CONFIGURATION.md](./CONFIGURATION.md).
 
 ## Uninstallation
 
-1. Remove `opencode-easy-vision` from the `plugin` array in your `opencode.json` file.
+1. Remove `opencode-easy-vision` from the `plugin` array in the `opencode.json` file where you installed it.
 
-2. Delete the config files the plugin created:
+2. Delete the plugin config files you no longer need:
 
 ```bash
 rm -f ~/.config/opencode/opencode-easy-vision.{json,jsonc}
+rm -f .opencode/opencode-easy-vision.{json,jsonc}
 ```
+
+If you migrated from `opencode-minimax-easy-vision` and no longer use it, you can also delete its legacy config files.
 
 ## Contributing
 
